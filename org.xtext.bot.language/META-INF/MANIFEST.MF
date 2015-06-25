@@ -1,0 +1,32 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.xtext.bot.language
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: org.xtext.bot.language; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.xtext;visibility:=reexport,
+ org.eclipse.equinox.common;bundle-version="3.5.0",
+ org.eclipse.xtext.util,
+ org.eclipse.emf.ecore,
+ org.eclipse.emf.common,
+ org.eclipse.xtext.xbase.lib,
+ org.antlr.runtime,
+ org.eclipse.xtext.common.types,
+ org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
+ org.eclipse.xtext.xbase
+Import-Package: org.apache.log4j
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: org.xtext.bot.language,
+ org.xtext.bot.language.services,
+ org.xtext.bot.language.bla,
+ org.xtext.bot.language.bla.impl,
+ org.xtext.bot.language.bla.util,
+ org.xtext.bot.language.serializer,
+ org.xtext.bot.language.parser.antlr,
+ org.xtext.bot.language.parser.antlr.internal,
+ org.xtext.bot.language.validation,
+ org.xtext.bot.language.formatting,
+ org.xtext.bot.language.jvmmodel,
+ org.xtext.bot.language.scoping,
+ org.xtext.bot.language.generator

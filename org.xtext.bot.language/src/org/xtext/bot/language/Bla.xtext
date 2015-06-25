@@ -1,0 +1,279 @@
+grammar org.xtext.bot.language.Bla  with org.eclipse.xtext.xbase.annotations.XbaseWithAnnotations
+//org.eclipse.xtext.common.Terminals
+
+generate bla "http://www.xtext.org/bot/language/Bla"
+
+//import 'http://www.eclipse.org/xtext/xbase/Xbase' as xbase
+
+
+// Language exists of Instructions
+BotLanguage:
+	{BotLanguage}
+	instructions += Instruction*;
+
+
+// The Bot Language contains 6 different instructions including variables
+// loops, conditions, functons and the username and the password for the login
+Instruction:
+	  Start 
+	| Stop 
+	| Procedure
+;
+
+
+// address for notification mails
+Notification:
+	{Notification}
+	('notify' | 'Notify') name = STRING ('to' | 'To' | 'TO') address = STRING
+;
+	
+	
+// Date evtl. mit parserrule anpassen  an Format
+// Start for the time that starts the bot; user have to write the right form of the Type data
+Start:
+	{Start}
+	('start' | 'Start' | 'START') name = STRING
+;
+
+
+// Only stop; if the Stop implementation are read then stop the bot
+Stop:
+	{Stop}
+	('stop' | 'Stop' | 'STOP')
+;
+
+
+
+//DATE:
+//	day = DATE_FORMAT '.' month = DATE_FORMAT '.' year = YEAR ' ' hours = DATE_FORMAT ':' minutes = DATE_FORMAT ':' second = DATE_FORMAT
+//;
+//
+//
+////
+//terminal DATE_FORMAT:
+//	(('0')('0'..'9')) | (('1'..'5')('0'..'9'))
+//;
+//
+//
+////
+//terminal YEAR:
+//	('2'..'9')('0'..'9')('0'..'9')('0'..'9')
+//;
+
+
+
+// Procedure to define the actions that the bot should do
+Procedure:
+	  Connect
+	| Read
+	| Write
+	| Click
+	| Var
+	| IFStatement
+	| WhileLoop
+	| Notification
+	| Start
+	| Stop
+	| Wait
+;
+
+
+
+
+// Wait for handle the click at's because bot action could be dedected if clicks are executed too fast
+Wait:
+	{Wait}
+	('wait' | 'Wait') name = INT 
+;
+
+
+// connecting with a URL
+Connect:
+	{Connect}
+	('connect' | 'Connect') name = STRING  // URL 
+;
+
+
+// read at/from a X-Path statement 
+Read: 
+	{Read} 
+	('read at' | 'readat' | 'readAt' | 'Read At' | 'ReadAt') name = STRING // XPath
+;
+
+
+// Write a value at a X-Path
+Write:
+	{Write}
+	('write' | 'Write') name = STRING ('at' | 'At' | 'AT') value = STRING 
+	
+;
+
+// Click at a X-Path
+Click:
+	{Click}
+	('click at' | 'clickat' | 'clickAt' | 'Click At' | 'ClickAt') name = STRING
+;
+
+
+// A Variable for defining a ReadAt such as var a = read at 'xpath'
+// It is comfortable for the user to use variables in if or while 
+Var:
+	{Var}
+	('var' | 'Var' | 'VAR') name = ID '=' value = Read
+;
+
+
+// If-statement for a normal if such as if ... else (optional) ... endif
+IFStatement: 
+	('if' | 'If' | 'IF') if = IfExpression 
+	('then' | 'Then' | 'THEN') (then += Block*)
+	(('else' | 'Else' | 'ELSE') else += Block*)?
+	('endif' | 'Endif' | 'EndIf' | 'ENDIF')	
+
+
+;
+
+
+// Expression for a then-expression
+Block:
+	{Block}
+	action = Write | Read | Click | Var | IFStatement | WhileLoop | Notification | Wait | Stop | Start
+;
+
+
+// begin of the IFExpression Rules including And-, Or- & Compare-Expressions to manage a right if statement
+IfExpression:
+	  IfAndExpression
+	| IfOrExpression
+	| IfCompareExpression
+;
+
+// And
+IfAndExpression:
+	{IfAndExpression}
+	leftFeature = IfCompareExpression  and = andOperant rightFeature = IfExpression
+;
+
+
+//And
+andOperant:
+	  '&&' 
+	| '&' 
+	| 'and' 
+	| 'And' 
+	| 'AND'
+;
+
+
+//OR
+IfOrExpression:
+	leftFeature = IfCompareExpression  or = orOperant  rightFeature = IfCompareExpression;
+
+//OR
+orOperant:
+	  '||' 
+	| '|' 
+	| 'or' 
+	| 'Or' 
+	| 'OR'
+;
+
+//Compare
+IfCompareExpression:
+	leftFeature = CompareFeature compareOperant = MultiCompareOperant rightFeature = CompareValue
+;
+
+//Compar
+CompareValue:
+	{CompareValue}
+	  INT
+	| STRING
+	| MathematicalInstructions
+	| Read
+	| variableValue = [Var]
+;
+
+//Compare
+MultiCompareOperant:
+	  '<' 
+	| '<=' 
+	| '==' 
+	| '=' 
+	| '>=' 
+	| '>' 
+	| '!='
+;
+
+//Compare
+CompareFeature:
+	{CompareFeature}
+	  INT
+	| STRING
+	| MathematicalInstructions
+	| Read
+	| variableFeature = [Var]
+;
+
+
+// Mathematical Instructions
+MathematicalInstructions:
+      Addition
+	| Subtraction
+	| Multiplication
+	| Division
+;
+
+
+//Add
+Addition:
+	{Addition}
+	valueLeft = MathValue1 '+' valueRight = MathValue2
+;
+
+//Sub
+Subtraction:
+	{Subtraction}
+	valueLeft = MathValue1 '-' valueRight = MathValue2
+;
+
+//Multiplicate
+Multiplication:
+	{Multiplication}
+	valueLeft = MathValue1 '*' valueRight = MathValue2
+;
+
+//Divide
+Division:
+	{Division}
+	valueLeft = MathValue1 '/' valueRight = MathValue2
+;
+
+
+//Mathematical Value almost left
+MathValue1:
+	{MathValue1}
+	  INT
+	| Read
+	| Var
+;
+
+
+//Mathematical Value almost right
+MathValue2:
+	{MathValue2}
+	  INT
+	| Read
+	| Var
+;
+
+
+// While loop Statement for executing a loop with a IfExpression
+WhileLoop:
+	('while' | 'While' | 'WHILE') while = IfExpression
+	('loop' | 'Loop' | 'LOOP') (doLoop += Block*)	
+	('endloop' | 'Endloop' | 'EndLoop' | 'ENDLOOP' )
+;
+
+
+
+	
